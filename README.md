@@ -42,7 +42,7 @@ inside of this repo but if anything is broken, you can find it
 
 Run it with:
 ```
-./protonmail-cli
+./proton-mail-export-cli
 ```
 
 Enter your **old** protonmail account email address and password. 
@@ -89,7 +89,7 @@ again for this.
 
 Run it with:
 ```
-./protonmail-cli
+./proton-mail-export-cli
 ```
 
 Enter your **new** protonmail account email address and password. 
