@@ -1,0 +1,113 @@
+#!/bin/bash
+# ================================ HEADER =====================================
+# Author:       Loic Delineau
+# Date:         08/03/2025
+# Licence:     	GNU-GPLv3 
+# File:        	migrate
+# Platform :    Linux shell running the Bourne Again SHell (BASH)
+# Description:	Copies selects emails into new directory
+
+# ======================= GLOBAL VARIABLES ====================================
+black=$(tput setaf 0)
+red=$(tput setaf 1)
+green=$(tput setaf 2)
+yellow=$(tput setaf 3)
+blue=$(tput setaf 4)
+magenta=$(tput setaf 5)
+cyan=$(tput setaf 6)
+white=$(tput setaf 7)
+
+# ========================== FUNCTIONS ========================================
+# Wait for user confirmation (y) to continue or (n) to quit                     
+prompt() {                                                                      
+                                                                                
+        echo "Continue by entering 'y', stop the script by pressing 'n'"        
+                                                                                
+        # Failsafe for wrong value inputted                                     
+        fail="1"                                                                
+                                                                                
+        while [[ "$fail" == "1" ]]; do                                          
+                                                                                
+                # Read 1 input char                                             
+                echo -n "> "                                                    
+                read -n 1 -r cmd < /dev/tty                                     
+                                                                                
+                # Keyboard input checking                                       
+                if [[ "$cmd" == "y" ]]; then                                    
+                        fail="0"                                                
+                        echo ""                                                 
+                elif [[ "$cmd" == "n" ]]; then                                  
+                        echo ""                                                 
+                        exit                                                    
+                else                                                            
+                        echo -e "\nUnknown key..."                              
+                fi                                                              
+done                                                                            
+}
+
+# =========================== SCRIPT EXECUTION ================================
+## CHECKS --------------------------------
+echo "$yellow"
+echo "Confirm you have renamed the directory with all emails to all/ $white"
+prompt
+
+## PROMPTS --------------------------------
+echo ""
+echo "Please enter the name of your domain"
+read domain
+
+echo ""
+echo "${yellow}Please confirm your domain is correct:${white} $domain"
+prompt
+
+## MAKES NEW DIR -----------------------------
+echo "$green"
+mkdir $domain
+echo "Just created a new directory called: $white $domain"
+
+## MOVES ALL EMAILS ----------------------------
+echo ""
+echo "Now starting the migration process"
+
+# Stores all file names
+ls ./all > temp
+
+# Number of lines in temp
+ln=$(wc -l < temp)
+
+# Counting index
+ind=0
+
+# Looping through temp
+for (( i=1; i<=$ln; i++ )); do
+	path=$(cat temp | head -n 1)
+	
+	# Removes first line
+	sed -i '1d' temp
+
+	# Conditional move
+	grep -q "$domain" ./all/$path && cp ./all/$path ./$domain \
+		&& ((ind++)) &&	echo "$ind"
+done
+
+rm temp
+
+# New STEP
+echo "$yellow"
+echo "Please enter this path into the next step to restore your emails: $white"
+cd $domain
+pwd
+cd ..
+
+# ========================== Closing Messages ================================= 
+echo "$green"
+echo "Script was executed successfully! $white"
+echo ""
+echo "Details of this script are documented here:"
+echo "https://github.com/loicdelineau/protonmail-domain-transfer"
+echo ""
+echo "Made,"
+echo "with Love,"
+echo "by Loïc"
+echo ""
+
